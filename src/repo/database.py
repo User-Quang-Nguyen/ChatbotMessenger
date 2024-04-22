@@ -76,6 +76,7 @@ class Database:
         try:
             while not bot_queue.empty():
                 formData = bot_queue.get()
+                
                 is_exist = self.check_exist_bot(formData["id"])
                 if is_exist:
                     print("Bot existed")
