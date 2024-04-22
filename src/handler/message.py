@@ -8,6 +8,8 @@ message_queue = queue.Queue()
 user_queue = queue.Queue()
 bot_queue = queue.Queue()
 
+def handleSendMessage(senderPsid, pagePsid, response):
+    fb_api.reply(senderPsid, pagePsid, response)
         
 def handleMessage(senderPsid, pagePsid, receiveMessage):
     if 'text' in receiveMessage:
@@ -18,7 +20,7 @@ def handleMessage(senderPsid, pagePsid, receiveMessage):
             "text": txt
         }
         
-        user_thread = threading.Thread(target = queue_handler.handleSendMessage, args=(senderPsid, pagePsid, response))
+        user_thread = threading.Thread(target = handleSendMessage, args=(senderPsid, pagePsid, response))
         user_thread.daemon = True
         user_thread.start()
         

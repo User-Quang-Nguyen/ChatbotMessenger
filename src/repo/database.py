@@ -47,6 +47,13 @@ class Database:
         try:
             while not user_queue.empty():
                 formData = user_queue.get()
+                is_exist = self.check_exist_user(formData["id"])
+                print(is_exist)
+                if is_exist:
+                    print("User existed")
+                    user_queue.task_done()
+                    continue
+                
                 query = 'INSERT INTO users (psid, firstname, lastname, avatar, gender, locale) VALUES (%s, %s, %s, %s, %s, %s)'
             
                 cur.execute(query, (formData['id'], formData['first_name'], formData['last_name'], formData['profile_pic'], formData['gender'], formData['locale']))
@@ -69,6 +76,12 @@ class Database:
         try:
             while not bot_queue.empty():
                 formData = bot_queue.get()
+                is_exist = self.check_exist_bot(formData["id"])
+                if is_exist:
+                    print("Bot existed")
+                    bot_queue.task_done()
+                    continue
+                
                 query = 'INSERT INTO bot (pageid, name, category) VALUES (%s, %s, %s)'
                 cur.execute(query, (formData['id'], formData['name'], formData['category']))
                 conn.commit()
@@ -78,6 +91,40 @@ class Database:
             
         except Exception as e:
             print(e)
+            return False
+        finally:
+            cur.close()
+            conn.close()
+            
+    def check_exist_user(self, id):
+        conn = self.get_connection()
+        cur = conn.cursor()
+        
+        try:
+            query = 'SELECT EXISTS (SELECT 1 FROM users WHERE psid = %s)'
+            cur.execute(query, (id,))
+            result = cur.fetchone()[0]
+            conn.commit()
+            return result
+        except Exception as e:
+            print(str(e))
+            return False
+        finally:
+            cur.close()
+            conn.close()
+    
+    def check_exist_bot(self, id):
+        conn = self.get_connection()
+        cur = conn.cursor()
+        
+        try:
+            query = 'SELECT EXISTS (SELECT 1 FROM bot WHERE pageid = %s)'
+            cur.execute(query, (id,))
+            result = cur.fetchone()[0]
+            conn.commit()
+            return result
+        except Exception as e:
+            print(str(e))
             return False
         finally:
             cur.close()
