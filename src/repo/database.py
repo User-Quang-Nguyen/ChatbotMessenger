@@ -130,3 +130,21 @@ class Database:
         finally:
             cur.close()
             conn.close()
+            
+    def getMessageSenderIdForPageid(self, senderid, receiveid, page):
+        conn = self.get_connection()
+        cur = conn.cursor()
+        per_page = 10
+        offset = (int(page) - 1) * per_page
+        try:
+            query = 'SELECT * FROM history WHERE (senderid = %s AND receiveid = %s) OR (senderid = %s AND receiveid = %s) ORDER BY id DESC LIMIT %s OFFSET %s'
+            cur.execute(query, (senderid, receiveid, receiveid, senderid, per_page, offset))
+            result = cur.fetchall()
+            conn.commit()
+            return result
+        except Exception as e:
+            print(str(e))
+            return False
+        finally:
+            cur.close()
+            conn.close()

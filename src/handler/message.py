@@ -1,6 +1,7 @@
 from src.handler import processor as generator_message
 from src.service import call_facebook_api as fb_api
 from src.service import queue as queue_handler
+from src.service import database
 from src.handler import GPT
 import threading
 import queue
@@ -15,10 +16,10 @@ def handleSendMessage(senderPsid, pagePsid, response):
 def handleMessage(senderPsid, pagePsid, receiveMessage, time):
     if 'text' in receiveMessage:
         thequestion = receiveMessage['text']
-        # try:
-        #     txt = GPT.chatbot_response(thequestion)
-        # except:
-        txt = generator_message.chatbot_response(thequestion)
+        try:
+            txt = GPT.chatbot_response(thequestion)
+        except:
+            txt = generator_message.chatbot_response(thequestion)
         response = {
             "text": txt
         }
@@ -36,3 +37,7 @@ def handleMessage(senderPsid, pagePsid, receiveMessage, time):
             "text": 'This chatbot only accecpts text message'
         }
         fb_api.reply(senderPsid, pagePsid, response)
+        
+def getMessage(senderid, receiveid, page):
+    result = database.getMessageSenderIdForPageid(senderid, receiveid, page)
+    return result
