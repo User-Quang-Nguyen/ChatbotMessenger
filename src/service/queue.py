@@ -1,11 +1,15 @@
 from src.service import call_facebook_api as fb_api
 from src.service import database
+from datetime import datetime
 
-def handleSaveToDb(senderPsid, receiveMmessage, pagePsid, response, message_queue, user_queue, bot_queue):
-    message_req = {"senderid": senderPsid, "content": receiveMmessage['text']}
-    message_res = {"senderid": pagePsid, "content": response['text']}
+def handleSaveToDb(senderPsid, receiveMmessage, pagePsid, response, message_queue, user_queue, bot_queue, time):
+    current_time = int(datetime.now().timestamp())*1000
+    
+    message_req = {"senderid": senderPsid, "receiveid": pagePsid, "content": receiveMmessage['text'], "time": time}
+    message_res = {"senderid": pagePsid, "receiveid": senderPsid, "content": response['text'], "time": current_time}
     message_queue.put(message_req)
     message_queue.put(message_res)
+    
     print("Tin nhắn đã được lưu vào trong hàng đợi.")
     if message_queue.qsize() >= 6:
         database.addHistoryData(message_queue)

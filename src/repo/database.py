@@ -2,7 +2,7 @@ import psycopg2
 import logging
 import queue
 from src.config import database
-logging.basicConfig(filename='app.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+from src.service import format_time
 
 class Database:
     def __init__(self):
@@ -26,9 +26,10 @@ class Database:
         try:
             while not message_queue.empty():
                 message = message_queue.get()
-                query = 'INSERT INTO history (senderid, message) VALUES (%s, %s)'
-        
-                cur.execute(query, (message["senderid"], message["content"]))
+                query = 'INSERT INTO history (senderid, message, createdat, receiveid) VALUES (%s, %s, %s, %s)'
+                time = format_time.convert_timestamp_to_datetime(message["time"])
+                
+                cur.execute(query, (message["senderid"], message["content"], time, message["receiveid"]))
                 conn.commit()
                 message_queue.task_done()
                 print("Tin nhắn đã được lưu vào cơ sở dữ liệu.")
@@ -48,7 +49,6 @@ class Database:
             while not user_queue.empty():
                 formData = user_queue.get()
                 is_exist = self.check_exist_user(formData["id"])
-                print(is_exist)
                 if is_exist:
                     print("User existed")
                     user_queue.task_done()

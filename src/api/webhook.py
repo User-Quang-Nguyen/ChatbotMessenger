@@ -56,9 +56,10 @@ def index():
                 
                 senderPsid = webhookEvent['sender']['id']
                 pagePsid = webhookEvent['recipient']['id']
+                time = webhookEvent['timestamp']
                 
                 if 'message' in webhookEvent:
-                    handler_message.handleMessage(senderPsid, pagePsid, webhookEvent['message'])
+                    handler_message.handleMessage(senderPsid, pagePsid, webhookEvent['message'], time)
                 
                 return 'EVENT_RECEIVED', 200
         else:

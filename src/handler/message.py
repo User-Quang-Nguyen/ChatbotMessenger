@@ -12,13 +12,13 @@ bot_queue = queue.Queue()
 def handleSendMessage(senderPsid, pagePsid, response):
     fb_api.reply(senderPsid, pagePsid, response)
         
-def handleMessage(senderPsid, pagePsid, receiveMessage):
+def handleMessage(senderPsid, pagePsid, receiveMessage, time):
     if 'text' in receiveMessage:
         thequestion = receiveMessage['text']
-        try:
-            txt = GPT.chatbot_response(thequestion)
-        except:
-            txt = generator_message.chatbot_response(thequestion)
+        # try:
+        #     txt = GPT.chatbot_response(thequestion)
+        # except:
+        txt = generator_message.chatbot_response(thequestion)
         response = {
             "text": txt
         }
@@ -27,7 +27,7 @@ def handleMessage(senderPsid, pagePsid, receiveMessage):
         user_thread.daemon = True
         user_thread.start()
         
-        Db_thread = threading.Thread(target = queue_handler.handleSaveToDb, args=(senderPsid, receiveMessage, pagePsid, response, message_queue, user_queue, bot_queue))
+        Db_thread = threading.Thread(target = queue_handler.handleSaveToDb, args=(senderPsid, receiveMessage, pagePsid, response, message_queue, user_queue, bot_queue, time))
         Db_thread.start()
         
         return "oke", 200
