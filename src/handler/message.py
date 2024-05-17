@@ -1,4 +1,4 @@
-# from src.handler import processor as generator_message
+from src.handler import processor as generator_message
 from src.service import call_facebook_api as fb_api
 from src.service import queue as queue_handler
 from src.service import database
@@ -20,12 +20,15 @@ def handleMessage(senderPsid, pagePsid, receiveMessage, time):
         
         is_suitable = pre_process.check_text(thequestion)
         if not is_suitable:
-            txt = "Sorry, you used an invalid keyword!!!"
+            txt = "Sorry, you used an invalid keyword"
+            response = {
+                "text": txt
+            }
         else:
             try:
                 txt = GPT.AI(thequestion)
             except:
-                # txt = generator_message.chatbot_response(thequestion)
+                txt = generator_message.chatbot_response(thequestion)
                 txt = "You send:" + receiveMessage['text']
             response = {
                 "text": txt
@@ -53,43 +56,6 @@ def handleMessage(senderPsid, pagePsid, receiveMessage, time):
         Db_thread.start()
         return "oke", 200
     
-# def handleMessage(senderPsid, pagePsid, receiveMessage, time):
-#     if 'text' in receiveMessage:
-#         thequestion = receiveMessage['text']
-#         try:
-#             txt = GPT.AI(thequestion)
-#         except:
-#             txt = generator_message.chatbot_response(thequestion)
-#         response = {
-#             "text": txt
-#         }
-
-#         user_process = multiprocessing.Process(target=handleSendMessage, args=(senderPsid, pagePsid, response))
-#         user_process.start()
-
-#         Db_process = multiprocessing.Process(target=queue_handler.handleSaveToDb, args=(senderPsid, receiveMessage, pagePsid, response, message_queue, user_queue, bot_queue, time))
-#         Db_process.start()
-
-#         user_process.join()  # Wait for user process to finish sending message
-#         Db_process.join()   # Wait for database process to finish saving
-
-#         return "oke", 200
-#     else:
-#         response = {
-#             "text": 'This chatbot only accepts text messages'
-#         }
-
-#         user_process = multiprocessing.Process(target=handleSendMessage, args=(senderPsid, pagePsid, response))
-#         user_process.start()
-
-#         Db_process = multiprocessing.Process(target=queue_handler.handleSaveToDb, args=(senderPsid, receiveMessage, pagePsid, response, message_queue, user_queue, bot_queue, time))
-#         user_process.start()
-
-#         user_process.join()
-#         Db_process.join()
-
-#         return "oke", 200
-
 def getMessage(senderid, receiveid, page):
     result = database.getMessageSenderIdForPageid(senderid, receiveid, page)
     return result
