@@ -4,44 +4,39 @@ import json
 
 db = Database()
 
-def addHistoryData(message_queue):
+def insert_messages(messages):
     try:
-        result = db.addHistoryData(message_queue)
-        return result
+        return db.insert_messages(messages)
     except Exception as e:
-        logging.getLogger.infor(f"[ERROR] insert data from database: {str(e)}")
+        logging.error(f"Failed to insert messages into database: {e}")
         return False
 
-def addUserInfors(user_queue):
+def add_user_infos(user_infos):
     try:
-        result = db.addUserInfor(user_queue)
-        return result
+        return db.add_user_infor(user_infos)
     except Exception as e:
-        logging.getLogger.infor(f"[ERROR] insert data from database: {str(e)}")
+        logging.error(f"Failed to add user infos into database: {e}")
         return False
     
-def addBotInfors(bot_queue):
+def add_bot_infos(bot_queue):
     try:
-        result = db.addBotInfor(bot_queue)
-        return result
-    except Exception as e:
-        logging.getLogger.infor(f"[ERROR] insert data from database: {str(e)}")
+        return db.add_bot_info(bot_queue)
+    except Exception as error:
+        logging.error(f"Failed to add bot info into database: {error}")
         return False
 
-def getMessageSenderIdForPageid(senderid, receiveid, page):
+def get_message_sender_ids_for_page(sender_id, recipient_id, page_id):
     try:
-        result = []
-        results = db.getMessageSenderIdForPageid(senderid, receiveid, page)
-        for item in results:
-            item_dict = {
-                "id": item[0],
-                "senderid": item[1],
-                "message": item[2],
-                "createdat": item[3],
-                "receiveid": item[4]
+        results = db.get_message_sender_ids_for_page(sender_id, recipient_id, page_id)
+        return [
+            {
+                "id": result[0],
+                "sender_id": result[1],
+                "message": result[2],
+                "created_at": result[3],
+                "recipient_id": result[4],
             }
-            result.append(item_dict)
-        return result
-    except Exception as e:
-        print(str(e))
-        return False
+            for result in results
+        ]
+    except Exception:
+        return []

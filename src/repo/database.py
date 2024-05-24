@@ -20,19 +20,18 @@ class Database:
         except Exception as e:
             logging.getLogger().info(f"[ERROR] connection refuse: {str(e)}")
     
-    def addHistoryData(self, message_queue):
+    def insert_messages(self, message_queue):
         conn = self.get_connection()
         cur = conn.cursor()
         try:
             while not message_queue.empty():
                 message = message_queue.get()
                 query = 'INSERT INTO history (senderid, message, createdat, receiveid) VALUES (%s, %s, %s, %s)'
-                time = format_time.convert_timestamp_to_datetime(message["time"])
+                time = format_time.format_timestamp(message["time"])
                 
-                cur.execute(query, (message["senderid"], message["content"], time, message["receiveid"]))
+                cur.execute(query, (message["sender_id"], message["content"], time, message["receive_id"]))
                 conn.commit()
                 message_queue.task_done()
-                print("Tin nhắn đã được lưu vào cơ sở dữ liệu.")
             message_queue.join()
         except Exception as e:
             logging.getLogger().info(f"[ERROR] connection refuse: {str(e)}")
@@ -41,7 +40,7 @@ class Database:
             cur.close()
             conn.close()
     
-    def addUserInfor(self, user_queue):
+    def add_user_infor(self, user_queue):
         conn = self.get_connection()
         cur = conn.cursor()
     
@@ -58,7 +57,6 @@ class Database:
             
                 cur.execute(query, (formData['id'], formData['first_name'], formData['last_name'], formData['profile_pic'], formData['gender'], formData['locale']))
                 conn.commit()
-                print("Người dùng đã được lưu vào cơ sở dữ liệu.")
                 user_queue.task_done()
             user_queue.join()
         
@@ -69,7 +67,7 @@ class Database:
             cur.close()
             conn.close()
             
-    def addBotInfor(self, bot_queue):
+    def add_bot_info(self, bot_queue):
         conn = self.get_connection()
         cur = conn.cursor()
         
@@ -131,7 +129,7 @@ class Database:
             cur.close()
             conn.close()
             
-    def getMessageSenderIdForPageid(self, senderid, receiveid, page):
+    def get_message_sender_ids_for_page(self, senderid, receiveid, page):
         conn = self.get_connection()
         cur = conn.cursor()
         per_page = 10

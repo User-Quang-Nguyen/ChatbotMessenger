@@ -1,24 +1,15 @@
 from textblob import TextBlob
 import re
 
-def check_obscene(text):
-    blob = TextBlob(text)
-    if blob.sentiment.polarity < 0:
-        # chứa ngôn ngữ tục tĩu
-        return True
-    else:
-        # không chứa ngôn ngữ tục tĩu
-        return False
+def contains_offensive_language(text):
+    text_blob = TextBlob(text)
+    return text_blob.sentiment.polarity < 0
     
-def check_syntax(text):
-    if re.search(r"^\s*(ls|pwd|cat|rm|ping|netcat|ssh)\s*", text):
-        # chứa câu lệnh Linux
-        return True
-    else:
-        # không chứa câu lệnh Linux
-        return False
+def check_linux_command(text):
+    """Check if the given text contains a Linux command."""
+    linux_command_pattern = r"\s*(ls|pwd|rm|ping|netcat|ssh)\s*"
+    return bool(re.search(linux_command_pattern, text))
     
-def check_text(text):
-    if check_obscene(text) or check_syntax(text):
-        return False
-    return True
+def is_text_valid(text):
+    """Check if the given text is valid by not containing offensive language and not containing a Linux command."""
+    return not contains_offensive_language(text) and not check_linux_command(text)
